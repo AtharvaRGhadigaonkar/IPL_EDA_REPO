@@ -82,3 +82,57 @@ with st.container(border=True):
     if st.button("Submit1"):
     	a = team_match_win_rate_after_toss_win(selected_year,selected_team1)
     	st.write(a)
+
+
+def team_decision_after_toss_win(year,team):
+    a = toss_data_grouped.get_group(year).groupby("toss_winner").get_group(team).value_counts("toss_decision")["bat"]
+    b = toss_data_grouped.get_group(year).groupby("toss_winner").get_group(team).value_counts("toss_decision")["field"]
+    c = toss_data_grouped.get_group(year).iloc[:,-3].value_counts()[team]
+    return ("Team {} won {} times in {} and choose batting: {} percent and bowling :{} percent times".format(team,c,year,((a/c)*100),((b/c)*100)))
+    # print((b/c)*100)
+
+
+with st.container(border=True):
+    st.header("Team Decision After Toss Won")
+    # Unique years for selection
+    years = toss_data["season"].unique()
+    selected_year = st.selectbox("Select a year pls 1", years)
+
+    # Get teams for the selected year
+    teams = toss_data_grouped.get_group(selected_year)
+    team1 = teams["team1"].unique()
+    team2 = teams["team2"].unique()
+    team3 = np.unique(np.concatenate((team1, team2)))
+    selected_team1 = st.selectbox("Select a team pls 1", team3)
+    if st.button("Submit pls 1"):
+    	a = team_decision_after_toss_win(selected_year,selected_team1)
+    	st.write(a)
+
+
+
+def after_decision_win_percentage(year,team):
+    batted = toss_data_grouped.get_group(year).groupby("toss_winner").get_group(team).value_counts("toss_decision")["bat"]
+    fielded = toss_data_grouped.get_group(year).groupby("toss_winner").get_group(team).value_counts("toss_decision")["field"]
+    batted_win = toss_data_grouped.get_group(year).groupby("toss_winner").get_group(team).groupby("toss_decision").get_group("bat").value_counts("winner")[team]
+    fielded_win = toss_data_grouped.get_group(year).groupby("toss_winner").get_group(team).groupby("toss_decision").get_group("field").value_counts("winner")[team]
+    list1 = ["The team {} in {} won and took batting {} times and won the game {} times so the percentages are {}".format(team,year,batted,batted_win,((batted_win/batted)*100)),"The team {} in {} won and took fielding {} times and won the game {} times so the percentages are {}".format(team,year,fielded,fielded_win,((fielded_win/fielded)*100))]
+    return (list1)
+
+
+
+with st.container(border=True):
+    st.header("After decision win percentage")
+    # Unique years for selection
+    years = toss_data["season"].unique()
+    selected_year = st.selectbox("Select a year pls 2", years)
+
+    # Get teams for the selected year
+    teams = toss_data_grouped.get_group(selected_year)
+    team1 = teams["team1"].unique()
+    team2 = teams["team2"].unique()
+    team3 = np.unique(np.concatenate((team1, team2)))
+    selected_team1 = st.selectbox("Select a team pls 2", team3)
+    if st.button("Submit pls 2"):
+    	a = after_decision_win_percentage(selected_year,selected_team1)
+    	st.write(a[0])
+    	st.write(a[1])
