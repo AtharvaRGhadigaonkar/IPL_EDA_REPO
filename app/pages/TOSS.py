@@ -136,3 +136,68 @@ with st.container(border=True):
     	a = after_decision_win_percentage(selected_year,selected_team1)
     	st.write(a[0])
     	st.write(a[1])
+
+
+
+
+
+
+
+import seaborn as sns
+from matplotlib import pyplot as plt
+
+def team_toss_win_at_venues(year, team):
+    plt.figure(figsize=(20,6))
+    a = toss_data_grouped.get_group(year).groupby("toss_winner").get_group(team).value_counts("venue").reset_index()
+    sns.barplot(data=a, x="venue", y='count', palette='viridis')
+    plt.xticks(rotation=90)
+    return(plt)
+
+team_toss_win_at_venues("2023", "CSK")
+
+with st.container(border=True):
+    st.header("Team Toss Win Venue")
+    # Unique years for selection
+    years = toss_data["season"].unique()
+    selected_year = st.selectbox("Select a year pls 3", years)
+
+    # Get teams for the selected year
+    teams = toss_data_grouped.get_group(selected_year)
+    team1 = teams["team1"].unique()
+    team2 = teams["team2"].unique()
+    team3 = np.unique(np.concatenate((team1, team2)))
+    selected_team1 = st.selectbox("Select a team pls 3", team3)
+    if st.button("Submit pls 3"):
+    	a = team_toss_win_at_venues(selected_year,selected_team1)
+    	st.pyplot(a)
+
+
+
+
+
+
+
+
+# def team_win_percentage_at_venue(venue,team):
+#     b = toss_data[toss_data["venue"]==venue]
+#     c = b[(b["team1"]== team) | (b["team2"]== team)]
+#     c1 = c.shape[0]
+#     d = c[c["winner"]== team].shape[0]
+#     return (["Team {} played {} times on {} and won {} times.".format(team,c1,venue,d),"Making the win percentage at {}: {}.".format(venue,((d/c1)*100))])
+#     # print("Team {} played {} times on {} and won {} times.".format(team,c1,venue,d))
+#     # print("Making the win percentage at {}: {}.".format(venue,((d/c1)*100)))
+
+# with st.container(border=True):
+#     st.header("Team Win Percentage At Venue")
+#     # Unique years for selection
+#     years = toss_data["venue"].unique()
+#     selected_year = st.selectbox("Select a year pls 4", years)
+
+#     # Get teams for the selected year
+#     teams = toss_data_grouped.get_group(selected_year)
+#     places = teams["venue"].unique()
+#     selected_team1 = st.selectbox("Select a team pls 4", places)
+#     if st.button("Submit pls 4"):
+#     	a = team_win_percentage_at_venue(selected_year,places)
+#     	st.write(a[0])
+#     	st.write(a[1])
