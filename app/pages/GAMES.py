@@ -86,3 +86,32 @@ with st.container(border=True):
     selected_player1 = st.selectbox("Select a Bowler", players1)
     if st.button("Submit1"):
         bowler_data(selected_year1,selected_player1)
+
+
+
+def bowler_data_without_year(bowler):
+    bowler_grouped_data = games_data.groupby("bowler").get_group(bowler)
+    
+    no_of_balls = bowler_grouped_data.shape[0] - bowler_grouped_data[(bowler_grouped_data["extras_type"]=="noballs") | (bowler_grouped_data["extras_type"]=="wides") ].shape[0]
+    st.write("No of Balls : " ,no_of_balls)
+    no_of_overs = no_of_balls / 6
+    st.write("No of overs: ", no_of_overs)
+    total_runs = bowler_grouped_data["batsman_runs"].sum() + bowler_grouped_data[(bowler_grouped_data["extras_type"]=="noballs") | (bowler_grouped_data["extras_type"]=="wides") ].shape[0]
+    st.write("No of total runs ",total_runs)
+    economy = total_runs/no_of_overs
+    st.write("econmomy " ,economy)
+    no_of_wickets = bowler_grouped_data[bowler_grouped_data["dismissal_kind"].isna()==False].shape[0]
+    st.write("No of Wickets " ,no_of_wickets)
+    Bolwing_avg = total_runs/no_of_wickets
+    st.write("Bolwing avg  " ,Bolwing_avg)
+    strike_rate = no_of_balls/no_of_wickets
+    boundary_percentage = ((bowler_grouped_data[bowler_grouped_data["batsman_runs"]== 4].shape[0])+(bowler_grouped_data[bowler_grouped_data["batsman_runs"]== 6].shape[0]))/no_of_balls
+    boundary_percentage = boundary_percentage * 100
+    st.write("Boundary percentage: " ,boundary_percentage)
+
+with st.container(border=True):
+    st.header("Bowler no year")
+    players2 = games_data["bowler"].unique()
+    selected_player2 = st.selectbox("Select a Bowler 2", players2)
+    if st.button("Submit2"):
+        bowler_data_without_year(selected_player2)
