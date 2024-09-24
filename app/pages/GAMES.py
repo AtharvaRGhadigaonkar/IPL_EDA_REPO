@@ -14,7 +14,7 @@ games_data =games_data.drop(columns=['non_striker',
        'result', 'result_margin', 'target_runs', 'target_overs', 'super_over',
        'method', 'umpire1', 'umpire2'])
 
-st.write(games_data.columns)
+# st.write(games_data.columns)
 
 def batsmen_data(year,batsmen):
     grouped_data = games_data.groupby("season").get_group(year).groupby("batter").get_group(batsmen)
@@ -39,16 +39,19 @@ def batsmen_data(year,batsmen):
     st.write("dot_ball_percentage: ",dot_ball_percentage)
 
 with st.container(border=True):
+
     st.header("Batsmen")
     # Unique years for selection
-    years = games_data["season"].unique()
-    selected_year = st.selectbox("Select a year", years)
+    col1, col2 = st.columns([2,2])
+    with col1:
+        years = games_data["season"].unique()
+        selected_year = st.selectbox("Select a year", years)
 
     # Get teams for the selected year
-
-    players = games_data.groupby("season").get_group(selected_year)
-    players = players["batter"].unique()
-    selected_player = st.selectbox("Select a team", players)
+    with col2: 
+        players = games_data.groupby("season").get_group(selected_year)
+        players = players["batter"].unique()
+        selected_player = st.selectbox("Select a team", players)
     if st.button("Submit"):
         batsmen_data(selected_year,selected_player)
 
@@ -76,14 +79,16 @@ def bowler_data(year,bowler):
 with st.container(border=True):
     st.header("Bowler")
     # Unique years for selection
-    years1 = games_data["season"].unique()
-    selected_year1 = st.selectbox("Select a year 1", years1)
+    col1, col2 = st.columns([2,2])
+    with col1:
+        years1 = games_data["season"].unique()
+        selected_year1 = st.selectbox("Select a year 1", years1)
 
     # Get teams for the selected year
-
-    players1 = games_data.groupby("season").get_group(selected_year1)
-    players1 = players1["bowler"].unique()
-    selected_player1 = st.selectbox("Select a Bowler", players1)
+    with col2:
+        players1 = games_data.groupby("season").get_group(selected_year1)
+        players1 = players1["bowler"].unique()
+        selected_player1 = st.selectbox("Select a Bowler", players1)
     if st.button("Submit1"):
         bowler_data(selected_year1,selected_player1)
 
@@ -145,3 +150,4 @@ with st.container(border=True):
     selected_player4 = st.selectbox("Select a bowler no year", players)
     if st.button("Submit no year"):
         batsmen_data_without_year(selected_player4)
+

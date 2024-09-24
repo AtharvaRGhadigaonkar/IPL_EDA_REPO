@@ -146,14 +146,48 @@ with st.container(border=True):
 import seaborn as sns
 from matplotlib import pyplot as plt
 
-def team_toss_win_at_venues(year, team):
-    plt.figure(figsize=(20,6))
-    a = toss_data_grouped.get_group(year).groupby("toss_winner").get_group(team).value_counts("venue").reset_index()
-    sns.barplot(data=a, x="venue", y='count', palette='viridis')
-    plt.xticks(rotation=90)
-    return(plt)
+import matplotlib.pyplot as plt
 
-team_toss_win_at_venues("2023", "CSK")
+import plotly.express as px
+import streamlit as st
+
+import plotly.graph_objects as go
+import streamlit as st
+
+import plotly.graph_objects as go
+import streamlit as st
+
+def team_toss_win_at_venues_interactive(year, team):
+    # Get the data for the given year and team
+    a = toss_data_grouped.get_group(year).groupby("toss_winner").get_group(team).value_counts("venue").reset_index()
+
+    # Create a simple, clean bar chart using Plotly Graph Objects
+    fig = go.Figure(data=[
+        go.Bar(x=a['venue'], y=a['count'], marker_color='#FF4B4B')  # Primary color for bars
+    ])
+    
+    # Set custom dark background and layout
+    fig.update_layout(
+        title=f'Team Toss Wins at Venues for {team} in {year}',
+        xaxis_title='Venue',
+        yaxis_title='Number of Toss Wins',
+        plot_bgcolor='#0E1117',    # Background color
+        paper_bgcolor='#0E1117',   # Outer background color
+        font=dict(color='#FAFAFA'),  # Text color
+        title_font_size=24,
+        xaxis=dict(tickangle=-45, linecolor='#262730'),  # Secondary background color for axis lines
+        bargap=0.2,  # Bar gap for aesthetics
+        yaxis=dict(gridcolor='#262730', linecolor='#262730'),  # Gridlines with secondary background color
+    )
+
+    # Return the interactive plot in Streamlit
+    with st.container(border=True):
+        st.plotly_chart(fig)
+
+# Example usage in Streamlit:
+# st.title("Interactive Toss Wins Visualization")
+# team_toss_win_at_venues_interactive(2021, 'India')
+
 
 with st.container(border=True):
     st.header("Team Toss Win Venue")
@@ -168,8 +202,7 @@ with st.container(border=True):
     team3 = np.unique(np.concatenate((team1, team2)))
     selected_team1 = st.selectbox("Select a team pls 3", team3)
     if st.button("Submit pls 3"):
-    	a = team_toss_win_at_venues(selected_year,selected_team1)
-    	st.pyplot(a)
+    	team_toss_win_at_venues_interactive(selected_year,selected_team1)
 
 
 
