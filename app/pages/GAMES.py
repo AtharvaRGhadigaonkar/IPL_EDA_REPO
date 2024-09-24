@@ -115,3 +115,33 @@ with st.container(border=True):
     selected_player2 = st.selectbox("Select a Bowler 2", players2)
     if st.button("Submit2"):
         bowler_data_without_year(selected_player2)
+
+
+def batsmen_data_without_year(batsmen):
+    grouped_data = games_data.groupby("batter").get_group(batsmen)
+    #Batting avg
+    total_runs = grouped_data["batsman_runs"].sum()
+    total_diss = grouped_data[grouped_data["player_dismissed"]==batsmen].shape[0]
+    batting_avg = total_runs/total_diss
+    st.write("batting_avg : " , batting_avg)
+    #Strike Rate
+    total_balls = grouped_data.shape[0] - grouped_data["extras_type"].value_counts().get("wides",0)
+    strike_rate = round((total_runs/total_balls)*100,2)
+    st.write("strike_rate: ",strike_rate)
+    #Total Runs
+    st.write("total_runs: ",total_runs)
+    #boundary Percentage
+    no_of_boundary =grouped_data["batsman_runs"].value_counts().get(4,0)*4+grouped_data["batsman_runs"].value_counts().get(6,0)*6
+    boundary_percentage =round((no_of_boundary/total_runs)*100,2)
+    st.write("boundary_percentage: ",boundary_percentage)
+    #dot Ball
+    total_dot_balls = grouped_data["batsman_runs"].value_counts().get(0,0)-grouped_data["extras_type"].value_counts().get("wides",0)
+    dot_ball_percentage  = round((total_dot_balls/total_balls)*100,2)
+    st.write("dot_ball_percentage: ",dot_ball_percentage)
+
+with st.container(border=True):
+    st.header("Batsmen No year")
+    players = games_data["batter"].unique()
+    selected_player4 = st.selectbox("Select a bowler no year", players)
+    if st.button("Submit no year"):
+        batsmen_data_without_year(selected_player4)
