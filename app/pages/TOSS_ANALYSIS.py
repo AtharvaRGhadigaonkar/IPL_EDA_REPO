@@ -117,33 +117,33 @@ def team_decision_after_toss_win_and_match_win(year,team):
         st.write("The team {} in {} won and took fielding {} times and won the game {} times so the percentages are {}".format(team,year,fielded,fielded_win,((fielded_win/fielded)*100)))
 
 def team_toss_win_at_venues(year, team):
-    with st.container(border=True):
-        # Group the data for toss wins at different venues
-        a = toss_data_grouped.get_group(year).groupby("toss_winner").get_group(team).value_counts("venue").reset_index()
-        a.columns = ['venue', 'count']
+    
+    # Group the data for toss wins at different venues
+    a = toss_data_grouped.get_group(year).groupby("toss_winner").get_group(team).value_counts("venue").reset_index()
+    a.columns = ['venue', 'count']
 
-        # Add a unique index for each venue to avoid grouping
-        a['venue_with_index'] = a['venue'] + ' (' + a.index.astype(str) + ')'
+    # Add a unique index for each venue to avoid grouping
+    a['venue_with_index'] = a['venue'] + ' (' + a.index.astype(str) + ')'
 
-        # Create an interactive horizontal bar chart
-        fig = px.bar(a, y="venue", x="count", 
-                     title=f"Toss Wins at Venues in {year} for {team}",
-                     labels={'venue': 'Venue', 'count': 'Toss Wins'}, 
-                     color_discrete_sequence=px.colors.sequential.Viridis,
-                     orientation='h')  # Change orientation to horizontal
+    # Create an interactive horizontal bar chart
+    fig = px.bar(a, y="venue", x="count", 
+                 title=f"Toss Wins at Venues in {year} for {team}",
+                 labels={'venue': 'Venue', 'count': 'Toss Wins'}, 
+                 color_discrete_sequence=px.colors.sequential.Viridis,
+                 orientation='h')  # Change orientation to horizontal
 
-        # Customize layout for wrapping long venue names
-        fig.update_layout(
-            xaxis_title="Number of Toss Wins",
-            yaxis_title="Venue",
-            yaxis=dict(tickmode='array', tickvals=a['venue'], ticktext=[v.replace(' ', '\n') for v in a['venue']]),  # This will wrap venue names with spaces
-            margin=dict(t=50, b=50, l=150, r=50),  # Add space for long y-axis labels
-            template="plotly_white",
-            height=500  # Adjust height if needed
-        )
-        
-        # Show interactive plot in Streamlit
-        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+    # Customize layout for wrapping long venue names
+    fig.update_layout(
+        xaxis_title="Number of Toss Wins",
+        yaxis_title="Venue",
+        yaxis=dict(tickmode='array', tickvals=a['venue'], ticktext=[v.replace(' ', '\n') for v in a['venue']]),  # This will wrap venue names with spaces
+        margin=dict(t=50, b=50, l=150, r=50),  # Add space for long y-axis labels
+        template="plotly_white",
+        annotations="annotations",
+        height=500  # Adjust height if needed
+    )
+    # Show interactive plot in Streamlit
+    st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
 #input figuring 
 with st.container(border = True):
