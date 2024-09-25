@@ -1,154 +1,112 @@
+#imports
 import numpy as np
 import pandas as pd
 import warnings
+import plotly.express as px
 import streamlit as st
+import plotly.graph_objects as go
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
-import streamlit as st
-import plotly.express as px
-
-# Sample data
-df = px.data.iris()
-
-# Create a Plotly scatter plot
-fig = px.scatter(df, x="sepal_width", y="sepal_length", color="species")
-
-# Display the plot in Streamlit
-st.plotly_chart(fig)
-
-
-import streamlit as st
-import altair as alt
-import pandas as pd
-
-# Sample data
-df = pd.DataFrame({
-    'x': [1, 2, 3, 4, 5],
-    'y': [10, 20, 30, 40, 50],
-    'category': ['A', 'A', 'B', 'B', 'C']
-})
-
-# Create an interactive Altair plot
-chart = alt.Chart(df).mark_circle(size=60).encode(
-    x='x',
-    y='y',
-    color='category',
-    tooltip=['x', 'y', 'category']
-).interactive()
-
-# Display the Altair chart in Streamlit
-st.altair_chart(chart)
+# Load the data
+data = pd.read_csv("../data/processed/clean_data.csv")
+toss_data = data.iloc[:, [1, 2, 3, 6, 7, 8, 9, 10, 11]]
+toss_data_grouped = toss_data.groupby("season")
 
 
 
-import streamlit as st
-from bokeh.plotting import figure
-from bokeh.models import ColumnDataSource
+def team_win_percentage(year,team):
+    with st.container(border=True):
+        a = toss_data_grouped.get_group(year).iloc[:,4].value_counts()[team]
+        b = toss_data_grouped.get_group(year).iloc[:,5].value_counts()[team]
+        c = a+b
+        d = toss_data_grouped.get_group(year).iloc[:,-3].value_counts()[team]
+        toss_win_percentage = round((d/c)*100,2)
+        st.write(f"**Toss Win Percentage : {toss_win_percentage}%**")
 
-# Sample data
-source = ColumnDataSource(data=dict(x=[1, 2, 3, 4, 5], y=[6, 7, 2, 4, 5]))
+def team_match_win_rate_after_toss_win(year,team):
+    with st.container(border=True):
+        a = toss_data_grouped.get_group(year).groupby("toss_winner").get_group(team).value_counts("winner")[team]
+        b = toss_data_grouped.get_group(year).iloc[:,-3].value_counts()[team]
+        st.write("**Won {} Tosses Out Of Which Won {} Matches**".format(b,a)) 
+        
+def team_decision_after_toss_win(year, team):
+    with st.container(border=True):
+        st.write("**Decision After Toss Win**")
+        
+        values = []
+        # Retrieve data
+        toss_winner_data = toss_data_grouped.get_group(year).groupby("toss_winner").get_group(team)
+        a = toss_winner_data.value_counts("toss_decision").get("bat", 0)
+        b = toss_winner_data.value_counts("toss_decision").get("field", 0)
+        c = toss_data_grouped.get_group(year).iloc[:, -3].value_counts().get(team, 0)
 
-# Create a Bokeh figure
-p = figure(title="Interactive Bokeh Plot", x_axis_label="X", y_axis_label="Y", tools="pan,wheel_zoom,box_zoom,reset")
+        # Calculate percentages
+        batting_percentage = (a / c * 100) if c > 0 else 0
+        bowling_percentage = (b / c * 100) if c > 0 else 0
+        
+        # Prepare data for plotting
+        labels = ['Batting', 'Bowling']
+        values.append(batting_percentage)
+        values.append(bowling_percentage)
 
-# Add circle glyphs
-p.circle('x', 'y', size=10, source=source)
+        # Create the bar chart
+        fig = go.Figure(data=[
+            go.Bar(name='Decision', x=labels, y=values, marker_color=['blue', 'orange'])
+        ])
 
-# Display the Bokeh plot in Streamlit
-st.bokeh_chart(p)
+        fig.update_layout(
+            xaxis_title='Decision',
+            yaxis_title='Percentage (%)',
+            yaxis=dict(range=[0, 100]),  # Set y-axis range from 0 to 100
+            margin=dict(t=10, b=30, l=30, r=30),  # Adjust margins here
+            template='plotly_white'
+        )
+        fig.update_layout(dragmode=False)
+        st.plotly_chart(fig, config={'displayModeBar': False})
 
+def team_decision_after_toss_win_and_match_win(year,team):
+    with st.container(border=True):
+        batted_win =0
+        fielded_win =0
+        batted = toss_data_grouped.get_group(year).groupby("toss_winner").get_group(team).value_counts("toss_decision")["bat"]
+        fielded = toss_data_grouped.get_group(year).groupby("toss_winner").get_group(team).value_counts("toss_decision")["field"]
+        if (toss_data_grouped.get_group(year).groupby("toss_winner").get_group(team).groupby("toss_decision").get_group("bat").value_counts("winner")[team] > 0):
+            batted_win = toss_data_grouped.get_group(year).groupby("toss_winner").get_group(team).groupby("toss_decision").get_group("bat").value_counts("winner")[team]
 
-# # Load the data
-# data = pd.read_csv("../data/processed/clean_data.csv")
-# toss_data = data.iloc[:, [1, 2, 3, 6, 7, 8, 9, 10, 11]]
-# toss_data_grouped = toss_data.groupby("season")
-
-# import seaborn as sns
-# import matplotlib.pyplot as plt
-
-# # Sample data for plotting
-# data_x = [1, 2, 3, 4, 5]
-# data_y = [10, 15, 8, 20, 12]
-
-# # 1. Dark Grid Theme
-# plt.figure()
-# sns.set_theme(style="darkgrid", palette="dark")
-# sns.histplot([1, 2, 1.5, 3, 2.5, 4])
-# plt.title("Dark Grid Theme")
-# st.pyplot(plt)
-
-
-# # 2. White Grid with Dark Background
-# plt.figure()
-# sns.set_theme(style="whitegrid", rc={"axes.facecolor": "#2E3440", "figure.facecolor": "#2E3440", "grid.color": "#FFFFFF"})
-# sns.lineplot(x=data_x, y=data_y)
-# plt.title("White Grid with Dark Background")
-# st.pyplot(plt)
-
-
-# # 3. Minimalist Dark Theme
-# plt.figure()
-# sns.set_theme(style="white", rc={"axes.facecolor": "#1f1f1f", "figure.facecolor": "#1f1f1f", "grid.color": "#444444", 
-#                                  "axes.labelcolor": "white", "xtick.color": "white", "ytick.color": "white"})
-# sns.scatterplot(x=data_x, y=data_y)
-# plt.title("Minimalist Dark Theme")
-# st.pyplot(plt)
-
-# # 4. Custom Dark Palette with 'Deep' Seaborn Colors
-# plt.figure()
-# dark_palette = sns.color_palette("deep")
-# sns.set_theme(style="dark", palette=dark_palette, rc={"axes.facecolor": "#2E3440", "figure.facecolor": "#2E3440"})
-# sns.barplot(x=["A", "B", "C"], y=[10, 20, 30])
-# plt.title("Custom Dark Palette")
-# st.pyplot(plt)
-
-# # 5. Solarized Dark
-# plt.figure()
-# sns.set_theme(style="whitegrid", rc={"axes.facecolor": "#002b36", "figure.facecolor": "#002b36", "grid.color": "#586e75", 
-#                                      "axes.labelcolor": "#93a1a1", "xtick.color": "#839496", "ytick.color": "#839496"})
-# sns.lineplot(x=data_x, y=data_y)
-# plt.title("Solarized Dark")
-# st.pyplot(plt)
+        st.write(batted_win)
+        if (toss_data_grouped.get_group(year).groupby("toss_winner").get_group(team).groupby("toss_decision").get_group("bat").value_counts("winner")[team] > 0):
+            fielded_win = toss_data_grouped.get_group(year).groupby("toss_winner").get_group(team).groupby("toss_decision").get_group("feild").value_counts("winner")[team]
+        st.write(fielded_win)
+        print("The team {} in {} won and took batting {} times and won the game {} times so the percentages are {}".format(team,year,batted,batted_win,((batted_win/batted)*100)))
+        print("The team {} in {} won and took fielding {} times and won the game {} times so the percentages are {}".format(team,year,fielded,fielded_win,((fielded_win/fielded)*100)))
 
 
 
-# # 6. Dark Background with Bright Accent Colors
-# plt.figure()
-# sns.set_theme(style="dark", palette="bright", rc={"axes.facecolor": "#212121", "figure.facecolor": "#212121", 
-#                                                   "grid.color": "#444444", "axes.labelcolor": "white", 
-#                                                   "xtick.color": "white", "ytick.color": "white"})
-# sns.histplot([1, 2, 3, 4, 2.5, 3.5])
-# plt.title("Dark Background with Bright Accent Colors")
-# st.pyplot(plt)
+#input figuring 
+with st.container(border = True):
+    col1, col2 = st.columns([2,2])
+    with col1:
+        years = toss_data["season"].unique()
+        selected_year = st.selectbox("Select a year", years)
+    with col2:
+        teams = toss_data_grouped.get_group(selected_year)
+        team1 = teams["team1"].unique()
+        team2 = teams["team2"].unique()
+        team3 = np.unique(np.concatenate((team1, team2)))
+        selected_team = st.selectbox("Select a team", team3)
+    if st.button("Submit"):
+        st.write("---")
+        with st.container(border=None):
+            column1,column2,column3 = st.columns([1,1,1])
+            with column1:
+                team_win_percentage(selected_year,selected_team)
+                team_decision_after_toss_win(selected_year,selected_team)
+                
+            with column2:
+                team_match_win_rate_after_toss_win(selected_year,selected_team)
+                team_decision_after_toss_win_and_match_win(selected_year,selected_team)
+            with column3:
+                st.write("column3")
 
-# # 7. Deep Blue Background
-# plt.figure()
-# sns.set_theme(style="darkgrid", rc={"axes.facecolor": "#0D1B2A", "figure.facecolor": "#0D1B2A", "grid.color": "#1B263B", 
-#                                     "axes.labelcolor": "white", "xtick.color": "white", "ytick.color": "white"})
-# sns.boxplot(x=["A", "B", "C"], y=[1, 2, 3])
-# plt.title("Deep Blue Background")
-# st.pyplot(plt)
 
-# # 8. Monochrome Dark
-# plt.figure()
-# sns.set_theme(style="ticks", rc={"axes.facecolor": "#202020", "figure.facecolor": "#202020", "grid.color": "#333333", 
-#                                  "axes.labelcolor": "#AAAAAA", "xtick.color": "#AAAAAA", "ytick.color": "#AAAAAA"})
-# sns.kdeplot([1, 2, 3, 4], fill=True)
-# plt.title("Monochrome Dark")
-# st.pyplot(plt)
-
-# # 9. Custom Dark Mode with High Contrast
-# plt.figure()
-# sns.set_theme(style="dark", rc={"axes.facecolor": "#222831", "figure.facecolor": "#222831", "grid.color": "#393E46", 
-#                                 "axes.labelcolor": "#EEEEEE", "xtick.color": "#EEEEEE", "ytick.color": "#EEEEEE"})
-# sns.barplot(x=["X", "Y", "Z"], y=[5, 9, 7])
-# plt.title("Custom Dark Mode with High Contrast")
-# st.pyplot(plt)
-
-# # 10. Ocean Dark Theme
-# plt.figure()
-# sns.set_theme(style="whitegrid", rc={"axes.facecolor": "#1B262C", "figure.facecolor": "#1B262C", "grid.color": "#0F4C75", 
-#                                      "axes.labelcolor": "#3282B8", "xtick.color": "#BBE1FA", "ytick.color": "#BBE1FA"})
-# sns.lineplot(x=data_x, y=data_y)
-# plt.title("Ocean Dark Theme")
-# st.pyplot(plt)
+    
