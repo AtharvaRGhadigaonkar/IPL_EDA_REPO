@@ -139,11 +139,11 @@ def team_toss_win_at_venues(year, team):
         yaxis=dict(tickmode='array', tickvals=a['venue'], ticktext=[v.replace(' ', '\n') for v in a['venue']]),  # This will wrap venue names with spaces
         margin=dict(t=50, b=50, l=150, r=50),  # Add space for long y-axis labels
         template="plotly_white",
-        annotations="annotations",
         height=500  # Adjust height if needed
     )
     # Show interactive plot in Streamlit
     st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+
 
 #input figuring 
 with st.container(border = True):
