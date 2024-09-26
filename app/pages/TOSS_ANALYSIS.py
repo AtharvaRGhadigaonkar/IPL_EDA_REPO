@@ -166,8 +166,9 @@ with st.container(border = True):
                 team_decision_after_toss_win(selected_year,selected_team)
                 
             with column2:
-                team_match_win_rate_after_toss_win(selected_year,selected_team)
+                
                 team_decision_after_toss_win_and_match_win(selected_year,selected_team)
+                team_match_win_rate_after_toss_win(selected_year,selected_team)
         with st.container(border=True):    
             team_toss_win_at_venues(selected_year,selected_team)
 
