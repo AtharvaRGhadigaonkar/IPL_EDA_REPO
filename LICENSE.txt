@@ -18,7 +18,7 @@ This project is licensed under the MIT License. By using this project, you agree
 ### How to Properly Attribute 🔗
 When using this code, please include the following statement in your documentation or project credits:
 
-"This project utilizes code and methodologies from the IPL Team Manager project by [Your Name/Your GitHub Username]. You can find the original project here: [GitHub Repository Link]."
+"This project utilizes code and methodologies from the IPL Team Manager project by Atharva Rajesh Ghadigaonkar. You can find the original project here: AtharvaRGhadigaonkar ."
 
 ### Disclaimer 🛑
 This project is provided "as-is" without warranty of any kind. The creators are not liable for any damages or issues that arise from using the code or its methodologies. 
